@@ -14,7 +14,7 @@ class DDRVQ(nn.Module):
                  encoder_config,
                  decoder_config,
                  n_embed=8192, 
-                 embed_dim=32,
+                 embed_dim=64,
                  decay=0.99,
                  quantize_kmeans_init=True,
                  decoder_out_dim=200,
@@ -37,8 +37,8 @@ class DDRVQ(nn.Module):
         print('Final decoder config', decoder_config)
         self.decoder_f = NeuralTransformer(**decoder_config)
         
-        self.quantize_t = ResidualVQ(n_embed=[2048*4, 8192, 8192], embedding_dim=64, beta=1, kmeans_init=quantize_kmeans_init, decay=decay)
-        self.quantize_f = ResidualVQ(n_embed=[2048*4, 8192, 8192], embedding_dim=64, beta=1, kmeans_init=quantize_kmeans_init, decay=decay)
+        self.quantize_t = ResidualVQ(n_embed=[8192, 8192, 8192], embedding_dim=64, beta=1, kmeans_init=quantize_kmeans_init, decay=decay)
+        self.quantize_f = ResidualVQ(n_embed=[8192, 8192, 8192], embedding_dim=64, beta=1, kmeans_init=quantize_kmeans_init, decay=decay)
 
         self.patch_size = encoder_config['patch_size']
         self.token_shape = (62, encoder_config['EEG_size'] // self.patch_size)
@@ -191,14 +191,14 @@ class DDRVQ(nn.Module):
         return loss, log
 
 def get_model_default_params():
-    return dict(EEG_size=1600, patch_size=200, in_chans=1, num_classes=1000, embed_dim=200, depth=12, num_heads=10,  
+    return dict(EEG_size=6000, patch_size=200, in_chans=1, num_classes=1000, embed_dim=200, depth=12, num_heads=10,  
                              mlp_ratio=4., qkv_bias=True,  qk_scale=None, drop_rate=0., attn_drop_rate=0., drop_path_rate=0., 
                              norm_layer=partial(nn.LayerNorm, eps=1e-6), init_values=0., use_abs_pos_emb=True, 
                              use_rel_pos_bias=False, use_shared_rel_pos_bias=False, use_mean_pooling=True, init_scale=0.001)
 
 @register_model
-def ddrvq_encoder_base_decoder_3x200x12(pretrained=False, pretrained_weight=None, as_tokenzer=False, EEG_size=3200, 
-                                            n_code=8192, code_dim=32, **kwargs):
+def ddrvq_encoder_base_decoder_3x200x12(pretrained=False, pretrained_weight=None, as_tokenzer=False, EEG_size=6000, 
+                                            n_code=8192, code_dim=64, **kwargs):
     encoder_config, decoder_config = get_model_default_params(), get_model_default_params()
 
     # encoder settings
