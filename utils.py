@@ -1,14 +1,3 @@
-# --------------------------------------------------------
-# Large Brain Model for Learning Generic Representations with Tremendous EEG Data in BCI
-# By Wei-Bang Jiang
-# Based on BEiT-v2, timm, DeiT, DINO, and BIOT code bases
-# https://github.com/microsoft/unilm/tree/master/beitv2
-# https://github.com/rwightman/pytorch-image-models/tree/master/timm
-# https://github.com/facebookresearch/deit/
-# https://github.com/facebookresearch/dino
-# https://github.com/ycq091044/BIOT
-# ---------------------------------------------------------
-
 import io
 import os
 import math
