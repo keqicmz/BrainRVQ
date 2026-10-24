@@ -68,7 +68,7 @@ Aggregate results over 7,928 segments from the tokenizer training data are summa
 
 ## Pre-trained weights
 
-The DD-RVQ tokenizer and pre-trained encoder checkpoints will be released upon acceptance of the paper. Download links will be added here.
+**We will publicly release the DD-RVQ tokenizer and pre-trained encoder weights after the paper is accepted.** Download links will be provided in this repository.
 
 ## Repository structure
 
@@ -107,14 +107,8 @@ Before launching the current scripts:
 
 1. Replace the placeholder data paths in the training entry points with your local dataset locations.
 2. Make the repository root and the `DDRVQ`, `Pretraining`, and `Downstream` directories available on the Python import path.
-3. Align the legacy model defaults with the registered names below. The pre-training entry point also retains an `import modeling_vqnsp` statement; the tokenizer implementation provided here is `DDRVQ/modeling_ddrvq.py`.
+3. Align the legacy model defaults with the model names registered in the corresponding modeling files. The pre-training entry point also retains an `import modeling_vqnsp` statement; the tokenizer implementation provided here is `DDRVQ/modeling_ddrvq.py`.
 4. Resolve the local `data_processor.dataset.ShockDataset` dependency imported by `utils.py`; that module is not included in the current repository.
-
-| Stage | Registered model name | Checkpoint argument |
-| --- | --- | --- |
-| Tokenizer | `ddrvq_encoder_base_decoder_3x200x12` | `--resume` for resuming training |
-| Encoder pre-training | `brainrvq_base_patch200_1600_8k_vocab` | `--tokenizer_weight` and `--tokenizer_model` |
-| Downstream fine-tuning | `brainrvq_base_patch200_200` | `--finetune` |
 
 The current repository provides the model and training source. End-to-end launch commands depend on the data paths and import configuration described above; a packaged reproduction environment is not yet provided.
 
