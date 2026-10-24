@@ -3,6 +3,8 @@
 <h3 align="center">EEG Representation Learning via Dual-Domain Residual Quantization and Hierarchical Autoregression</h3>
 
 <p align="center">
+  <a href="https://arxiv.org/abs/2602.16951">Paper (arXiv)</a> &nbsp;|&nbsp;
+  <a href="https://arxiv.org/pdf/2602.16951">PDF</a> &nbsp;|&nbsp;
   <a href="#method">Method</a> &nbsp;|&nbsp;
   <a href="#reported-downstream-results">Results</a> &nbsp;|&nbsp;
   <a href="#visualizations">Visualizations</a> &nbsp;|&nbsp;
