@@ -5,7 +5,6 @@
 <p align="center">
   <a href="https://arxiv.org/abs/2602.16951">Paper (arXiv)</a> &nbsp;|&nbsp;
   <a href="https://arxiv.org/pdf/2602.16951">PDF</a> &nbsp;|&nbsp;
-  <a href="#method">Method</a> &nbsp;|&nbsp;
   <a href="#reported-downstream-results">Results</a> &nbsp;|&nbsp;
   <a href="#visualizations">Visualizations</a> &nbsp;|&nbsp;
   <a href="#using-the-source">Getting started</a> &nbsp;|&nbsp;
@@ -25,26 +24,6 @@ The framework is pre-trained on over **9,200 hours of clinical EEG** from the Te
 | Pre-training data | Downstream evaluation | Token hierarchy |
 | :---: | :---: | :---: |
 | **9,200+ hours** of clinical EEG | **8 datasets** across clinical and BCI tasks | **3 residual levels** in each of **2 domains** |
-
-## Method
-
-### 1. Dual-domain EEG tokenization
-
-A shared encoder maps EEG patches into latent representations. Separate temporal and frequency RVQ branches encode these representations into coarse-to-fine code sequences. Domain-specific decoders reconstruct the waveform and the amplitude and phase spectra.
-
-Each branch uses three residual quantization levels, with 8,192 code vectors of dimension 64 per level.
-
-### 2. Hierarchical autoregressive pre-training
-
-The encoder learns to predict masked EEG codes. At each patch position, finer-level predictions are conditioned on the preceding coarser-level codes using teacher forcing. Prediction follows the residual hierarchy within each patch.
-
-### 3. Importance-guided curriculum masking
-
-Mask sampling combines random scores with spectral and temporal signal scores. The influence of signal-based scores increases during training. The encoder is trained on two complementary masking views.
-
-### 4. Downstream adaptation
-
-The pre-trained encoder and a task-specific classification head are fine-tuned end-to-end. Downstream classification uses encoder features; it does not require the tokenizer or autoregressive code prediction.
 
 ## Reported downstream results
 
@@ -112,43 +91,6 @@ BrainRVQ/
 │   └── engine_for_finetuning.py      # Fine-tuning and evaluation loop
 └── utils.py                          # Dataset loaders and shared utilities
 ```
-
-## Model configuration
-
-| Setting | Configuration |
-| --- | --- |
-| Sampling rate | 200 Hz |
-| Patch duration | 1 second, or 200 samples |
-| Pre-training input | 19 channels × 30 seconds |
-| Transformer encoder | 12 layers, hidden dimension 200, 10 attention heads |
-| Tokenizer decoder | 3 Transformer layers |
-| RVQ depth | 3 levels per domain |
-| Codebook size | 8,192 entries per level |
-| Code-vector dimension | 64 |
-| Tokenizer training | 20 epochs |
-| Encoder pre-training | 20 epochs |
-
-The experiments used Python 3.10, PyTorch 2.1.2, and CUDA 11.8. Python dependencies referenced by the source include `timm`, `einops`, `numpy`, `scipy`, `h5py`, `pandas`, `scikit-learn`, `tensorboardX`, and `pyhealth`.
-
-## Data preparation
-
-Obtain the datasets from their respective providers and prepare them according to the dataset-specific protocols in the manuscript and supplementary material.
-
-- **Pre-training:** TUEG recordings are resampled to 200 Hz and segmented into 30-second samples with 19 channels. Recordings belonging to the TUAB and TUEV test sets are excluded from pre-training.
-- **Pre-training storage:** `utils.H5AggregatedDataset` reads HDF5 files containing `eeg_data` and `ch_names`. The training entry points search for `TUEG_*.hdf5` files.
-- **Downstream data:** Dataset loaders and partitioning functions are defined in `utils.py`. Dataset selection is handled by `get_dataset()` in `Downstream/finetuning_main.py`.
-- **Input layout:** The downstream training loop receives EEG samples in `[batch, channels, time]` format and reshapes them into 200-sample patches.
-
-| Dataset | Selector in the downstream script | Task |
-| --- | --- | --- |
-| TUAB | `TUAB` | Abnormality detection |
-| TUEV | `TUEV` | Six-class event classification |
-| CHB-MIT | `CHBMIT` | Seizure detection |
-| SEED-V | `SEEDV` | Five-class emotion recognition |
-| PhysioNet-MI | `Physio` | Four-class motor imagery |
-| SHU-MI | `SHU` | Binary motor imagery |
-| BCICIV-2a | `BCICIV2a` | Four-class motor imagery |
-| Mental Workload | `Mental` | Binary mental workload classification |
 
 ## Using the source
 
