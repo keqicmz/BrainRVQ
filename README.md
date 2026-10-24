@@ -1,10 +1,28 @@
-# BrainRVQ
+<h1 align="center">BrainRVQ</h1>
 
-## EEG Representation Learning via Dual-Domain Residual Quantization and Hierarchical Autoregression
+<h3 align="center">EEG Representation Learning via Dual-Domain Residual Quantization and Hierarchical Autoregression</h3>
+
+<p align="center">
+  <a href="#method">Method</a> &nbsp;|&nbsp;
+  <a href="#reported-downstream-results">Results</a> &nbsp;|&nbsp;
+  <a href="#visualizations">Visualizations</a> &nbsp;|&nbsp;
+  <a href="#using-the-source">Getting started</a> &nbsp;|&nbsp;
+  <a href="#pre-trained-weights">Weights</a>
+</p>
 
 BrainRVQ learns transferable EEG representations from hierarchical discrete targets. It combines a **Dual-Domain Residual Vector Quantization (DD-RVQ)** tokenizer, **hierarchical autoregressive pre-training**, and **importance-guided curriculum masking**.
 
 The framework is pre-trained on over **9,200 hours of clinical EEG** from the Temple University Hospital EEG Corpus (TUEG) and evaluated on eight downstream datasets covering seizure detection, abnormality detection, event classification, motor imagery, emotion recognition, and mental workload classification.
+
+<p align="center">
+  <a href="assets/framework.png"><img src="assets/framework.png" alt="BrainRVQ architecture: dual-domain residual tokenization, hierarchical masked pre-training with teacher forcing, and downstream EEG classification." width="100%"></a>
+</p>
+
+**Framework overview.** DD-RVQ constructs temporal and frequency code hierarchies. The encoder learns from masked code prediction conditioned on preceding residual levels, then transfers to downstream EEG tasks through fine-tuning.
+
+| Pre-training data | Downstream evaluation | Token hierarchy |
+| :---: | :---: | :---: |
+| **9,200+ hours** of clinical EEG | **8 datasets** across clinical and BCI tasks | **3 residual levels** in each of **2 domains** |
 
 ## Method
 
@@ -26,10 +44,56 @@ Mask sampling combines random scores with spectral and temporal signal scores. T
 
 The pre-trained encoder and a task-specific classification head are fine-tuned end-to-end. Downstream classification uses encoder features; it does not require the tokenizer or autoregressive code prediction.
 
+## Reported downstream results
+
+Selected metrics from the manuscript are shown below. Values are mean ± standard deviation over five downstream fine-tuning runs using a shared pre-trained encoder checkpoint and fixed dataset partitions.
+
+| Dataset | Metric | BrainRVQ |
+| --- | --- | --- |
+| Mental Workload | AUROC | 0.862 ± 0.010 |
+| CHB-MIT | AUROC | 0.928 ± 0.024 |
+| CHB-MIT | AUC-PR | 0.465 ± 0.036 |
+| SHU-MI | AUROC | 0.717 ± 0.007 |
+| TUAB | AUROC | 0.900 ± 0.002 |
+| BCICIV-2a | Cohen's Kappa | 0.388 ± 0.008 |
+| PhysioNet-MI | Cohen's Kappa | 0.523 ± 0.015 |
+| TUEV | Cohen's Kappa | 0.690 ± 0.008 |
+| SEED-V | Cohen's Kappa | 0.260 ± 0.010 |
+
+## Visualizations
+
+### Waveform and spectral reconstruction
+
+<p align="center">
+  <a href="assets/reconstruction.png"><img src="assets/reconstruction.png" alt="Three selected EEG reconstruction examples showing original and reconstructed waveforms, amplitude spectra, and phase spectra." width="100%"></a>
+</p>
+
+**Selected high-fidelity reconstruction examples.** Rows show three EEG segments; columns show waveforms, amplitude spectra, and phase spectra. Blue curves are the original signals and orange dashed curves are the reconstructions. Spectral panels show the first 20 frequency bins.
+
+Aggregate results over 7,928 segments from the tokenizer training data are summarized below.
+
+| Metric | Waveform | Amplitude | Phase |
+| --- | --- | --- | --- |
+| Correlation | 0.904 ± 0.030 | 0.956 ± 0.016 | 0.577 ± 0.042 |
+| SNR (dB) | 8.1 ± 1.2 | 11.2 ± 1.2 | 2.0 ± 0.5 |
+
+### Importance-guided masking
+
+<p align="center">
+  <a href="assets/masking.png"><img src="assets/masking.png" alt="Patch-score distributions for visible and masked patches under random and importance-guided masking in an example EEG recording." width="100%"></a>
+</p>
+
+**Patch-score distributions in an example EEG recording.** Random masking produces similar score distributions for visible and masked patches. Importance-guided sampling shifts the masked subset toward higher scores. Gray denotes visible patches; colored distributions denote masked patches; dashed lines indicate their means.
+
+## Pre-trained weights
+
+The DD-RVQ tokenizer and pre-trained encoder checkpoints will be released upon acceptance of the paper. Download links will be added here.
+
 ## Repository structure
 
 ```text
 BrainRVQ/
+├── assets/                          # Figures displayed in this README
 ├── DDRVQ/
 │   ├── ddrvq_main.py                 # Tokenizer training entry point
 │   ├── modeling_ddrvq.py             # Dual-domain tokenizer and reconstruction
@@ -109,26 +173,6 @@ Before launching the current scripts:
 | Downstream fine-tuning | `brainrvq_base_patch200_200` | `--finetune` |
 
 The current repository provides the model and training source. End-to-end launch commands depend on the data paths and import configuration described above; a packaged reproduction environment is not yet provided.
-
-## Reported downstream results
-
-Selected metrics from the manuscript are shown below. Values are mean ± standard deviation over five downstream fine-tuning runs using a shared pre-trained encoder checkpoint and fixed dataset partitions.
-
-| Dataset | Metric | BrainRVQ |
-| --- | --- | --- |
-| Mental Workload | AUROC | 0.862 ± 0.010 |
-| CHB-MIT | AUROC | 0.928 ± 0.024 |
-| CHB-MIT | AUC-PR | 0.465 ± 0.036 |
-| SHU-MI | AUROC | 0.717 ± 0.007 |
-| TUAB | AUROC | 0.900 ± 0.002 |
-| BCICIV-2a | Cohen's Kappa | 0.388 ± 0.008 |
-| PhysioNet-MI | Cohen's Kappa | 0.523 ± 0.015 |
-| TUEV | Cohen's Kappa | 0.690 ± 0.008 |
-| SEED-V | Cohen's Kappa | 0.260 ± 0.010 |
-
-## Pre-trained weights
-
-The DD-RVQ tokenizer and pre-trained encoder checkpoints will be released upon acceptance of the paper. Download links will be added here.
 
 ## Acknowledgments
 
